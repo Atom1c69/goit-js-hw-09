@@ -13,6 +13,7 @@ const refs = {
 
 refs.button.addEventListener('click', onClickStartTimer);
 
+refs.input.classList.add('datetime-picker');
 refs.button.disabled = true;
 
 const options = {
@@ -33,23 +34,26 @@ function closeDataTimePicker(selectedDates) {
 
   if (selectedDate <= currentDay) {
     Notiflix.Notify.failure('Please choose a date in the future');
+    refs.button.disabled = true;
   } else {
     refs.button.disabled = false;
   }
 }
 
 function onClickStartTimer() {
-  const selectedDate = picker.selectedDates[0].getTime();
-  const currentDay = Date.now();
-  const delta = selectedDate - currentDay;
-  const convertTime = convertMs(delta);
-  updateTime(convertTime);
+  const intervalID = setInterval(() => {
+    const selectedDate = picker.selectedDates[0].getTime();
+    const currentDay = Date.now();
+    const delta = selectedDate - currentDay;
+    const convertTime = convertMs(delta);
 
-  const intervalID = setInterval(onClickStartTimer, 1000);
+    if (delta <= 0) {
+      clearInterval(intervalID);
+      return;
+    }
 
-  if (delta <= 0) {
-    clearInterval(intervalID);
-  }
+    updateTime(convertTime);
+  }, 1000);
 }
 
 function convertMs(delta) {
